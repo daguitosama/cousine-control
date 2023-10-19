@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev --manual -c \"node server.js\"",
-    "start": "cross-env NODE_ENV=production node ./server.js",
-    "typecheck": "tsc"
+    "d": "remix dev -c \"npm run dev:server\" --manual",
+    "dev:server": "nodemon --exec \"node --experimental-specifier-resolution=node --loader @bleed-believer/path-alias ./server.ts\" --watch ./server.ts",
+    "start": "cross-env NODE_ENV=production node --experimental-specifier-resolution=node --loader @bleed-believer/path-alias ./server.ts",
+    "typecheck": "tsc",
+    "gen_pass_hash": "node -r dotenv/config --loader @bleed-believer/path-alias ./cli/hash.ts"
   },
   "dependencies": {
     "@remix-run/css-bundle": "^2.0.1",
@@ -24,17 +26,27 @@
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
+    "@bleed-believer/path-alias": "^0.15.2",
     "@remix-run/dev": "^2.0.1",
     "@remix-run/eslint-config": "^2.0.1",
+    "@remix-run/server-runtime": "^2.0.1",
+    "@types/bcryptjs": "^2.4.2",
     "@types/compression": "^1.7.2",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.4",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/source-map-support": "^0.5.6",
+    "bcryptjs": "^2.4.3",
     "chokidar": "^3.5.3",
+    "dotenv": "^16.3.1",
     "eslint": "^8.38.0",
-    "typescript": "^5.1.6"
+    "nodemon": "^2.0.22",
+    "postgres": "^3.3.5",
+    "tailwindcss": "^3.3.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "zod": "^3.22.4"
   },
   "engines": {
     "node": ">=18.0.0"
