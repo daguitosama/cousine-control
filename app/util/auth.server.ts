@@ -54,6 +54,7 @@ type AuthenticateOperationResult = {
     ok: SessionData | null;
     err: string | null;
 };
+
 export async function authenticate({
     username,
     password,
@@ -64,11 +65,22 @@ export async function authenticate({
     sql: postgres.Sql;
 }): Promise<AuthenticateOperationResult> {
     const getUserResult = await getUser({ username, sql });
-    if (getUserResult.err || !getUserResult.ok) {
+    if (getUserResult.err) {
         return { ok: null, err: getUserResult.err };
     }
+    // user not found
+    if (!getUserResult.ok) {
+        // do not expose user-not-found
+        // just signal username-pass miss match
+        return { ok: null, err: "Username and password don't match" };
+    }
 
-    const password_is_valid = bcrypt.compare(password, getUserResult.ok.hashed_password);
+    const password_is_valid = await bcrypt.compare(password, getUserResult.ok.hashed_password);
+    console.log({
+        password_is_valid,
+        password,
+        hashed_password: getUserResult.ok.hashed_password,
+    });
     if (!password_is_valid) {
         return { ok: null, err: "Username and password don't match" };
     }
@@ -98,13 +110,14 @@ async function getUser({
         select * from users where username = ${username};
     `;
         if (!userRows.length) {
-            throw new Error("User not found");
+            // throw new Error("DB ERROR: User not found");
+            return { ok: null, err: null };
         }
         return { ok: userRows[0], err: null };
     } catch (error) {
         console.error(error);
         if (error instanceof Error) {
-            return { ok: null, err: error.message };
+            return { ok: null, err: `DB ERROR: ${error.message}` };
         }
         return { ok: null, err: "Unknown Error" };
     }
