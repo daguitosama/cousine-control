@@ -85,7 +85,7 @@ export async function action({ request, context }: DataFunctionArgs) {
     cookieSession.set("userId", authenticate_operation.ok.userId);
     cookieSession.set("role", authenticate_operation.ok.role);
 
-    return redirect(`/${authenticate_operation.ok.role}/`, {
+    return redirect(default_app_link_for_role(authenticate_operation.ok.role), {
         headers: { "Set-Cookie": await context.session_storage.commitSession(cookieSession) },
     });
 }

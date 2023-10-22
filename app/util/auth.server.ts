@@ -1,5 +1,5 @@
 // app/sessions.ts
-import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
+import { createCookieSessionStorage, redirect, json } from "@remix-run/node"; // or cloudflare/deno
 import env from "./env.server";
 import postgres from "postgres";
 import { User } from "~/types/user";
@@ -122,4 +122,47 @@ async function getUser({
         }
         return { ok: null, err: "Unknown Error" };
     }
+}
+
+function is_user_role(role: string): role is User["user_role"] {
+    return role == "admin" || role == "server";
+}
+
+function role_is_in_roles(role: string, roles: User["user_role"][]): boolean {
+    if (!is_user_role(role)) {
+        return false;
+    }
+
+    if (!roles.includes(role)) {
+        return false;
+    }
+
+    return true;
+}
+
+type Redirect_If_Not_Authorized_Result = ReturnType<typeof redirect> | false;
+
+export async function redirect_if_not_authorized(
+    request: Request,
+    role_or_roles: User["user_role"] | Array<User["user_role"]>
+): Promise<Redirect_If_Not_Authorized_Result> {
+    //
+    const session = await get_session(request);
+    //
+    if (!session) {
+        return redirect(`/login/`);
+    }
+    var is_authorized: boolean = false;
+
+    if (Array.isArray(role_or_roles)) {
+        is_authorized = role_is_in_roles(session.role, role_or_roles);
+    } else {
+        is_authorized = role_is_in_roles(session.role, [role_or_roles]);
+    }
+
+    if (!is_authorized) {
+        return redirect(`/login/`);
+    }
+    // allow pass
+    return false;
 }
