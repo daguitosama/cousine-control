@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { authenticate, get_session } from "~/util/auth.server";
 import { LoginSubmissionSchema } from "~/util/user_validation.server";
 import { useActionData, useFetcher } from "@remix-run/react";
+import { default_app_link_for_role } from "~/util/misc.server";
 
 type LoaderData = {};
 
@@ -14,7 +15,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
     // session found
     // reroute to his `role` based app section
-    return redirect(`/${session.role}/`);
+
+    return redirect(default_app_link_for_role(session.role));
 }
 
 type ActionData = {
@@ -125,8 +127,8 @@ export default function LoginRoute() {
                             type='text'
                             name='username'
                             id='username-input'
-                            min={3}
-                            max={20}
+                            minLength={3}
+                            maxLength={20}
                             pattern='^[a-zA-Z0-9_]+$'
                             title='Username can only include letters, numbers, and underscores. And must be between 3 and 20 characters'
                             className='border border-black/50 rounded-md py-[6px] px-[6px]'

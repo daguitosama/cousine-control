@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 type SessionData = {
     userId: string;
-    role: string;
+    role: User["user_role"];
 };
 
 type SessionFlashData = {
@@ -40,6 +40,7 @@ export async function get_session(request: Request): Promise<SessionData | null>
     const userId = (await session).get("userId");
     var role = (await session).get("role") ?? "";
     // no valid session
+    // validate role (TS inference is useless at runtime)
     if (!userId || !role || !["admin", "server"].includes(role)) {
         return null;
     }
@@ -47,7 +48,7 @@ export async function get_session(request: Request): Promise<SessionData | null>
     return {
         userId,
         role,
-    };
+    } as SessionData; // fix TS role type dropping, was validated at runtime above
 }
 
 type AuthenticateOperationResult = {
