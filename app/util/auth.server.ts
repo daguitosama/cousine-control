@@ -77,11 +77,7 @@ export async function authenticate({
     }
 
     const password_is_valid = await bcrypt.compare(password, getUserResult.ok.hashed_password);
-    console.log({
-        password_is_valid,
-        password,
-        hashed_password: getUserResult.ok.hashed_password,
-    });
+
     if (!password_is_valid) {
         return { ok: null, err: "Username and password don't match" };
     }

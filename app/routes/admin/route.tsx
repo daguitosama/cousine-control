@@ -10,10 +10,32 @@ import { get_session, get_user_by_id, redirect_if_not_authorized } from "~/util/
 import { json } from "@remix-run/node";
 import clsx from "clsx";
 import { LogoutBtn } from "../logout";
-import { type User, type ClientSafeUser, client_safe_user } from "~/types/user";
-import { ReactHTML } from "react";
+import { client_safe_user } from "~/types/user";
+
+// todo: check after some submission on products
+// if this loader get's hit again
+// in case it does
+// stop re re evaluating (and hitting the db) if it does
+// https://remix.run/docs/en/main/route/should-revalidate
+// import type { ShouldRevalidateFunction } from "@remix-run/react";
+//
+// export const shouldRevalidate: ShouldRevalidateFunction = ({
+//     actionResult,
+//     currentParams,
+//     currentUrl,
+//     defaultShouldRevalidate,
+//     formAction,
+//     formData,
+//     formEncType,
+//     formMethod,
+//     nextParams,
+//     nextUrl,
+// }) => {
+//     return false;
+// };
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
+    console.log("(admin.layout) loader hit");
     const redirection = await redirect_if_not_authorized(request, "admin");
     if (redirection) {
         return redirection;
@@ -29,6 +51,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         throw new Error("No session bitch");
     }
     //
+    var start = Date.now();
     const user_op_result = await get_user_by_id({ id: session.userId, sql: context.sql });
     if (user_op_result.err) {
         throw new Error(user_op_result.err);
@@ -36,6 +59,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     if (!user_op_result.ok) {
         throw new Error("No user found bitch");
     }
+    var end = Date.now() - start;
+    console.log("(admin.layout) $get_user_by_id toke: " + end + " ms");
 
     // product get logic
     return json({
