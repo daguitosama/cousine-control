@@ -4,21 +4,42 @@ import {
     UserGroupIcon,
     ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/outline";
-import { NavLink, Outlet } from "@remix-run/react";
+import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/server-runtime";
-import { redirect_if_not_authorized } from "~/util/auth.server";
+import { get_session, get_user_by_id, redirect_if_not_authorized } from "~/util/auth.server";
 import { json } from "@remix-run/node";
 import clsx from "clsx";
 import { LogoutBtn } from "../logout";
+import { type User, type ClientSafeUser, client_safe_user } from "~/types/user";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
     const redirection = await redirect_if_not_authorized(request, "admin");
     if (redirection) {
         return redirection;
     }
 
+    // todo:
+    // refactor this shit to make TS know
+    // that at this point the session has a valid `userId`
+    const session = await get_session(request);
+    // temp escape hatch from TS not knowing
+    // todo: clean this shit when refactoring
+    if (!session) {
+        throw new Error("No session bitch");
+    }
+    //
+    const user_op_result = await get_user_by_id({ id: session.userId, sql: context.sql });
+    if (user_op_result.err) {
+        throw new Error(user_op_result.err);
+    }
+    if (!user_op_result.ok) {
+        throw new Error("No user found bitch");
+    }
+
     // product get logic
-    return json({});
+    return json({
+        user: client_safe_user(user_op_result.ok),
+    });
 }
 
 export default function AdminRoute() {
@@ -52,11 +73,12 @@ export default function AdminRoute() {
 }
 
 function AdminAppSideBar({ links }: { links: AppLink[] }) {
+    const loaderData = useLoaderData<typeof loader>();
+    const firstLetter = loaderData.user.username.slice(0, 1);
     return (
         <div className='h-full px-[24px] relative'>
             {/* logo */}
             <div className='py-[20px] px-[10px]'>
-                {" "}
                 <h1 className='font-medium text-sm  leading-none'>Cousine Control</h1>
             </div>
             {/* menu links */}
@@ -68,7 +90,13 @@ function AdminAppSideBar({ links }: { links: AppLink[] }) {
                 </ul>
             </div>
             {/* user options */}
-            <div className='fixed bottom-0 left-0 px-[24px] pb-[32px]'>
+            <div className='fixed bottom-0 left-0 px-[24px] pb-[32px] flex items-center gap-[20px] '>
+                <div className='-left-1 relative text-sm px-[10px] py-[10px] flex items-center gap-[8px]'>
+                    <div className=' bg-neutral-200 rounded-full px-[6px] py-[4px] leading-none uppercase'>
+                        {firstLetter}
+                    </div>
+                    <div>{loaderData.user.username}</div>
+                </div>
                 <LogoutBtn />
             </div>
         </div>

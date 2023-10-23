@@ -124,6 +124,31 @@ async function getUser({
     }
 }
 
+export async function get_user_by_id({
+    id,
+    sql,
+}: {
+    id: string;
+    sql: postgres.Sql;
+}): Promise<GetUserResult> {
+    try {
+        const userRows = await sql<User[]>`
+        select * from users where id = ${id};
+    `;
+        if (!userRows.length) {
+            // throw new Error("DB ERROR: User not found");
+            return { ok: null, err: null };
+        }
+        return { ok: userRows[0], err: null };
+    } catch (error) {
+        console.error(error);
+        if (error instanceof Error) {
+            return { ok: null, err: `DB ERROR: ${error.message}` };
+        }
+        return { ok: null, err: "Unknown Error" };
+    }
+}
+
 function is_user_role(role: string): role is User["user_role"] {
     return role == "admin" || role == "server";
 }
@@ -141,7 +166,9 @@ function role_is_in_roles(role: string, roles: User["user_role"][]): boolean {
 }
 
 type Redirect_If_Not_Authorized_Result = ReturnType<typeof redirect> | false;
-
+// todo: make this fn return also the session
+// with discriminator types 👇
+// https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
 export async function redirect_if_not_authorized(
     request: Request,
     role_or_roles: User["user_role"] | Array<User["user_role"]>

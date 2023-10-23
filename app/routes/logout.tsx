@@ -22,8 +22,8 @@ export function LogoutBtn() {
             method='post'
         >
             <button className='rounded-lg py-[10px] px-[8px] flex items-center gap-[8px]'>
-                <ArrowLeftOnRectangleIcon className='w-5 h-5' />
                 <span className='text-sm leading-none'>Logout</span>
+                <ArrowLeftOnRectangleIcon className='w-5 h-5 rotate-180' />
             </button>
         </form>
     );
