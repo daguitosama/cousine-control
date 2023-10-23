@@ -11,6 +11,7 @@ import { json } from "@remix-run/node";
 import clsx from "clsx";
 import { LogoutBtn } from "../logout";
 import { type User, type ClientSafeUser, client_safe_user } from "~/types/user";
+import { ReactHTML } from "react";
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
     const redirection = await redirect_if_not_authorized(request, "admin");
@@ -85,7 +86,12 @@ function AdminAppSideBar({ links }: { links: AppLink[] }) {
             <div className='mt-[16px]'>
                 <ul>
                     {links.map((app_link) => {
-                        return <SidebarNavLink app_link={app_link} />;
+                        return (
+                            <SidebarNavLink
+                                app_link={app_link}
+                                key={app_link.id}
+                            />
+                        );
                     })}
                 </ul>
             </div>
@@ -103,7 +109,7 @@ function AdminAppSideBar({ links }: { links: AppLink[] }) {
     );
 }
 
-function SidebarNavLink({ app_link }: { app_link: AppLink }) {
+function SidebarNavLink({ app_link, ...props }: { app_link: AppLink }) {
     const base_classes = "rounded-lg py-[10px] px-[8px] flex items-center gap-[8px]";
     const pending_classes = "bg-neutral-50 animate-pulse";
     const active_classes = "bg-neutral-100 opacity-100";
@@ -120,10 +126,7 @@ function SidebarNavLink({ app_link }: { app_link: AppLink }) {
     }
 
     return (
-        <li
-            key={app_link.id}
-            className=' '
-        >
+        <li className=' '>
             <NavLink
                 to={app_link.route}
                 className={dynamic_classes}
