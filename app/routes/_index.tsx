@@ -58,5 +58,8 @@ export default function Index() {
 }
 
 export const meta: MetaFunction = () => {
-    return [{ title: "New Remix App" }, { name: "description", content: "Welcome to Remix!" }];
+    return [
+        { title: "Cousine Control" },
+        { name: "description", content: "Welcome to Cousine Control!" },
+    ];
 };

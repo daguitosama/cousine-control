@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@bleed-believer/path-alias": "^0.15.2",
+    "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.17",
     "@remix-run/dev": "^2.0.1",
     "@remix-run/eslint-config": "^2.0.1",

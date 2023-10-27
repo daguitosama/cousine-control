@@ -92,7 +92,9 @@ export default function AdminRoute() {
 
             {/* main app panel */}
             <div className='  w-full'>
-                <Outlet />
+                <div className='max-w-screen-lg 2xl:max-w-screen-2xl mx-auto px-[24px]'>
+                    <Outlet />
+                </div>
             </div>
         </div>
     );
@@ -123,7 +125,7 @@ function AdminAppSideBar({ links }: { links: AppLink[] }) {
             {/* user options */}
             <div className='fixed bottom-0 left-0 px-[24px] pb-[32px] flex items-center gap-[20px] '>
                 <div className='-left-1 relative text-sm px-[10px] py-[10px] flex items-center gap-[8px]'>
-                    <div className=' bg-neutral-200 rounded-full px-[6px] py-[4px] leading-none uppercase'>
+                    <div className=' bg-neutral-200 rounded-full w-[30px] h-[30px] flex items-center justify-center px-[6px] py-[4px] leading-none uppercase'>
                         {firstLetter}
                     </div>
                     <div>{loaderData.user.username}</div>

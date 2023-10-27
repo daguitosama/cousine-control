@@ -1,6 +1,7 @@
 import type { DataFunctionArgs, LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/node";
 import { ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { Form } from "@remix-run/react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
     return json({});
@@ -17,7 +18,7 @@ export async function action({ request, context }: DataFunctionArgs) {
 
 export function LogoutBtn() {
     return (
-        <form
+        <Form
             action='/logout'
             method='post'
         >
@@ -25,6 +26,6 @@ export function LogoutBtn() {
                 <span className='text-sm leading-none'>Logout</span>
                 <ArrowLeftOnRectangleIcon className='w-5 h-5 rotate-180' />
             </button>
-        </form>
+        </Form>
     );
 }
