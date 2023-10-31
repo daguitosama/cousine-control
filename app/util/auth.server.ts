@@ -1,9 +1,10 @@
 // app/sessions.ts
 import { createCookieSessionStorage, redirect, json } from "@remix-run/node"; // or cloudflare/deno
 import env from "./env.server";
-import postgres from "postgres";
 import { User } from "~/types/user";
 import bcrypt from "bcryptjs";
+import { db } from "./db.server";
+import { new_timer } from "./misc.server";
 
 type SessionData = {
     userId: string;
@@ -59,13 +60,11 @@ type AuthenticateOperationResult = {
 export async function authenticate({
     username,
     password,
-    sql,
 }: {
     username: string;
     password: string;
-    sql: postgres.Sql;
 }): Promise<AuthenticateOperationResult> {
-    const getUserResult = await getUser({ username, sql });
+    const getUserResult = await getUserByUserName({ username });
     if (getUserResult.err) {
         return { ok: null, err: getUserResult.err };
     }
@@ -91,17 +90,16 @@ export async function authenticate({
     });
 }
 
-type GetUserResult = {
+type GetUserResultByUserName = {
     ok: User | null;
     err: string | null;
 };
-async function getUser({
+async function getUserByUserName({
     username,
-    sql,
 }: {
     username: string;
-    sql: postgres.Sql;
-}): Promise<GetUserResult> {
+}): Promise<GetUserResultByUserName> {
+    const sql = db();
     try {
         const userRows = await sql<User[]>`
         select * from users where username = ${username};
@@ -128,23 +126,17 @@ type GetUserByIdError = {
     err: string;
 };
 type GetUserByIdResult = GetUserByIdSuccess | GetUserByIdError;
-export async function get_user_by_id({
-    id,
-    sql,
-}: {
-    id: string;
-    sql: postgres.Sql;
-}): Promise<GetUserByIdResult> {
-    var _start = Date.now();
+export async function get_user_by_id({ id }: { id: string }): Promise<GetUserByIdResult> {
+    const timer = new_timer();
+    const sql = db();
     try {
         const userRows = await sql<User[]>`
         select * from users where id = ${id};
     `;
         if (!userRows.length) {
-            // throw new Error("DB ERROR: User not found");
             return { ok: null, err: "User not found" };
         }
-        return { ok: { user: userRows[0], time: Date.now() - _start }, err: null };
+        return { ok: { user: userRows[0], time: timer.delta() }, err: null };
     } catch (error) {
         console.error(error);
         if (error instanceof Error) {

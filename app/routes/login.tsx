@@ -64,7 +64,6 @@ export async function action({ request, context }: DataFunctionArgs) {
     const authenticate_operation = await authenticate({
         username: submission.data.username,
         password: submission.data.password,
-        sql: context.sql,
     });
 
     if (authenticate_operation.err) {

@@ -50,7 +50,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         throw new Error("No session bitch");
     }
     //
-    const user_op_result = await get_user_by_id({ id: session.userId, sql: context.sql });
+    const user_op_result = await get_user_by_id({ id: session.userId });
     if (user_op_result.err) {
         throw new Error(user_op_result.err);
     }
@@ -58,7 +58,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         throw new Error("No user found bitch");
     }
 
-    // product get logic
     return json(
         {
             user: client_safe_user(user_op_result.ok.user),

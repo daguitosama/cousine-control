@@ -19,6 +19,7 @@ import { Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { get_products, save_product } from "./db";
 import { Product } from "~/types/product";
+import { ProductTable } from "./ProductTable";
 
 type LoaderData = {
     dialog_add_product_link: string;
@@ -40,7 +41,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         throw get_products_op.err;
     }
 
-    // /products GET logic
     return json<LoaderData>(
         {
             dialog_add_product_link: add_products_dialog_link(),
@@ -127,6 +127,8 @@ export default function ProductsRoute() {
                     open={is_dialog_open}
                 />
             </AppHeader>
+
+            <ProductTable products={loaderData.products} />
         </div>
     );
 }
