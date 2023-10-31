@@ -1,4 +1,8 @@
-import type { DataFunctionArgs, LoaderFunctionArgs } from "@remix-run/server-runtime";
+import type {
+    DataFunctionArgs,
+    HeadersFunction,
+    LoaderFunctionArgs,
+} from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/node";
 import { redirect_if_not_authorized } from "~/util/auth.server";
 import { ButtonLink, ButtonLinkControl } from "~/components/ui/ButtonLink";
@@ -13,11 +17,13 @@ import {
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { save_product } from "./db";
+import { get_products, save_product } from "./db";
+import { Product } from "~/types/product";
 
 type LoaderData = {
     dialog_add_product_link: string;
     dialog: ProductsScreenDialog;
+    products: Product[];
 };
 const DIALOGS_ACTIONS = {
     add_products: "add-products",
@@ -28,13 +34,40 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (redirection) {
         return redirection;
     }
+    const get_products_op = await get_products();
+    //
+    if (get_products_op.err) {
+        throw get_products_op.err;
+    }
 
     // /products GET logic
-    return json<LoaderData>({
-        dialog_add_product_link: add_products_dialog_link(),
-        dialog: parse_dialog(request),
-    });
+    return json<LoaderData>(
+        {
+            dialog_add_product_link: add_products_dialog_link(),
+            dialog: parse_dialog(request),
+            products: get_products_op.ok.products,
+        },
+        {
+            headers: {
+                "Server-Timing": `get_products;desc="(db) Get Products";dur=${get_products_op.ok.time}`,
+            },
+        }
+    );
 }
+
+export const headers: HeadersFunction = ({
+    actionHeaders,
+    loaderHeaders,
+    parentHeaders,
+    errorHeaders,
+}) => {
+    return {
+        "Server-Timing": [
+            loaderHeaders.get("Server-Timing") as string,
+            parentHeaders.get("Server-Timing") as string,
+        ].join(","),
+    };
+};
 
 type ActionData = {
     operation_result: {

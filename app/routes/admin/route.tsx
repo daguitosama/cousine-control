@@ -5,7 +5,7 @@ import {
     ArrowLeftOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/server-runtime";
+import { HeadersFunction, LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { get_session, get_user_by_id, redirect_if_not_authorized } from "~/util/auth.server";
 import { json } from "@remix-run/node";
 import clsx from "clsx";
@@ -35,7 +35,6 @@ import { client_safe_user } from "~/types/user";
 // };
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
-    console.log("(admin.layout) loader hit");
     const redirection = await redirect_if_not_authorized(request, "admin");
     if (redirection) {
         return redirection;
@@ -51,7 +50,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         throw new Error("No session bitch");
     }
     //
-    var start = Date.now();
     const user_op_result = await get_user_by_id({ id: session.userId, sql: context.sql });
     if (user_op_result.err) {
         throw new Error(user_op_result.err);
@@ -59,14 +57,30 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     if (!user_op_result.ok) {
         throw new Error("No user found bitch");
     }
-    var end = Date.now() - start;
-    console.log("(admin.layout) $get_user_by_id toke: " + end + " ms");
 
     // product get logic
-    return json({
-        user: client_safe_user(user_op_result.ok),
-    });
+    return json(
+        {
+            user: client_safe_user(user_op_result.ok.user),
+        },
+        {
+            headers: {
+                "Server-Timing": `get_user_by_id;desc="(db) Get User by id";dur=${user_op_result.ok.time}`,
+            },
+        }
+    );
 }
+
+export const headers: HeadersFunction = ({
+    actionHeaders,
+    loaderHeaders,
+    parentHeaders,
+    errorHeaders,
+}) => {
+    return {
+        "Server-Timing": loaderHeaders.get("Server-Timing") as string,
+    };
+};
 
 export default function AdminRoute() {
     const ADMIN_APP_LINKS: AppLink[] = [

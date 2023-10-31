@@ -1,6 +1,8 @@
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { new_timer } from "~/util/misc.server";
+import type { HeadersFunction } from "@remix-run/node"; // or cloudflare/deno
 
 type User = {
     id: string;
@@ -13,13 +15,33 @@ type LoaderData = {
 };
 
 export async function loader({ request, context: { sql } }: LoaderFunctionArgs) {
+    const timer = new_timer();
     const users = await sql<User[]>`
       select * from users;
     `;
-    return json<LoaderData>({
-        users,
-    });
+    return json<LoaderData>(
+        {
+            users,
+        },
+        {
+            headers: {
+                "Server-Timing": `get_users;desc="(db) Get Users";dur=${timer.delta()}`,
+            },
+        }
+    );
 }
+
+export const headers: HeadersFunction = ({
+    actionHeaders,
+    loaderHeaders,
+    parentHeaders,
+    errorHeaders,
+}) => {
+    return {
+        "X-Stretchy-Pants": "its for fun",
+        "Server-Timing": loaderHeaders.get("Server-Timing") as string,
+    };
+};
 
 export default function Index() {
     const { users } = useLoaderData<LoaderData>();
@@ -44,10 +66,6 @@ export default function Index() {
                             <div>
                                 <p className='pr-4 text-gray-500'>role: </p>
                                 <p>{user.user_role}</p>
-                            </div>
-                            <div>
-                                <p className='pr-4 text-gray-500'>hashed_password: </p>
-                                <p>{user.hashed_password}</p>
                             </div>
                         </li>
                     );

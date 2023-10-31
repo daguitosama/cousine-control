@@ -7,7 +7,7 @@ import compression from "compression";
 import express from "express";
 import morgan from "morgan";
 import sourceMapSupport from "source-map-support";
-import new_db_connection from "./db";
+import { db } from "./app/util/db.server";
 import postgres from "postgres";
 import { session_storage } from "~/util/auth.server";
 import env from "~/util/env.server";
@@ -20,7 +20,7 @@ installGlobals();
 const BUILD_PATH = path.resolve("build/index.js");
 const VERSION_PATH = path.resolve("build/version.txt");
 
-const sql = new_db_connection(env().DB_URL);
+const sql = db();
 
 declare module "@remix-run/server-runtime" {
     interface AppLoadContext {

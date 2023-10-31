@@ -119,23 +119,32 @@ async function getUser({
         return { ok: null, err: "Unknown Error" };
     }
 }
-
+type GetUserByIdSuccess = {
+    ok: { user: User; time: number };
+    err: null;
+};
+type GetUserByIdError = {
+    ok: null;
+    err: string;
+};
+type GetUserByIdResult = GetUserByIdSuccess | GetUserByIdError;
 export async function get_user_by_id({
     id,
     sql,
 }: {
     id: string;
     sql: postgres.Sql;
-}): Promise<GetUserResult> {
+}): Promise<GetUserByIdResult> {
+    var _start = Date.now();
     try {
         const userRows = await sql<User[]>`
         select * from users where id = ${id};
     `;
         if (!userRows.length) {
             // throw new Error("DB ERROR: User not found");
-            return { ok: null, err: null };
+            return { ok: null, err: "User not found" };
         }
-        return { ok: userRows[0], err: null };
+        return { ok: { user: userRows[0], time: Date.now() - _start }, err: null };
     } catch (error) {
         console.error(error);
         if (error instanceof Error) {
