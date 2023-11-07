@@ -131,19 +131,20 @@ function CreateOrder({ product_lines }: { product_lines: Map<string, ProductLine
         );
     }
 
-    const op_result: Create_Order_Operation_Result | undefined = fetcher.data;
     const is_loading = fetcher.state != "idle";
+    const op_result: Create_Order_Operation_Result | undefined = fetcher.data;
+
     return (
         <div className='grid gap-8'>
             {
                 // @ts-ignore
-                op_result?.err && (
+                !is_loading && op_result?.err ? (
                     <div className='rounded-lg p-4  border border-black'>
                         <p className='font-medium text-lg'>Error</p>
-                        // @ts-ignore
-                        <p className='text-sm'>{op_result?.err}</p>
+                        <p className='text-sm'>{op_result?.err?.item}</p>
+                        <p className='text-sm'>{op_result?.err?.cause}</p>
                     </div>
-                )
+                ) : null
             }
             <div className='py-5 grid gap-5'>
                 <h2 className='text-lg font-medium'>Name</h2>
@@ -201,14 +202,16 @@ function CreateOrder({ product_lines }: { product_lines: Map<string, ProductLine
                 </div>
             </div>
 
-            <div>
-                <Button
-                    onClick={submit}
-                    disabled={is_loading}
-                >
-                    <span>{is_loading ? "Creating" : "Create"}</span>
-                </Button>
-            </div>
+            {final_product_lines.size > 0 && (
+                <div>
+                    <Button
+                        onClick={submit}
+                        disabled={is_loading}
+                    >
+                        <span>{is_loading ? "Creating" : "Create"}</span>
+                    </Button>
+                </div>
+            )}
 
             <div className='mt-[50px] bg-slate-100 rounded-lg p-4 text-xs overflow-scroll border border-slate-200'>
                 <pre>

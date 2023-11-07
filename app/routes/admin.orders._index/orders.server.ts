@@ -98,7 +98,7 @@ export async function get_orders(): Promise<GetOrdersResult> {
             P.ID AS PRODUCT_ID,
             P.NAME AS PRODUCT_NAME,
             P.PRICE AS PRODUCT_PRICE,
-            P.QUANTITY
+            OP.QUANTITY AS QUANTITY
         FROM ORDERS O
         JOIN ORDERS_PRODUCTS OP ON O.ID = OP.ORDER_ID
         JOIN PRODUCTS P ON OP.PRODUCT_ID = P.ID;
@@ -125,10 +125,13 @@ function parse_orders_products_joint(rows: OrdersProductsJoint[]): Order[] {
         if (!orders_map.has(row.order_id)) {
             orders_map.set(row.order_id, order_from_current_orders_products_joint_row(row));
         } else {
+            // this possibility should never happen
+            // this snippet is here just to ditch the null of on tmp_order
             var tmp_order = orders_map.get(row.order_id);
             if (!tmp_order?.product_lines) {
                 throw new Error("_temp order does not has product_lines");
             }
+            //
             var product_line = product_line_from_current_orders_products_joint_row(row);
             tmp_order.product_lines.push(product_line);
             tmp_order.total += product_line.product.price * product_line.quantity;
