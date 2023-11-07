@@ -5,7 +5,7 @@ type Create_Order_Operation_Success = {
     ok: true;
     err: null;
 };
-type Create_Order_Operation_Error = {
+export type Create_Order_Operation_Error = {
     ok: false;
     err: { item: string; cause: string }; // todo: this can't be a JS Error, since get's loss on serialization
     // fix it by using something like {item: string, cause : string}
