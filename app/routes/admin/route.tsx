@@ -3,6 +3,7 @@ import {
     RectangleStackIcon,
     UserGroupIcon,
     ArrowLeftOnRectangleIcon,
+    ArchiveBoxIcon,
 } from "@heroicons/react/24/outline";
 import { NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { HeadersFunction, LoaderFunctionArgs } from "@remix-run/server-runtime";
@@ -91,10 +92,16 @@ export default function AdminRoute() {
         },
         {
             id: "1",
-            route: "/admin/users",
-            label: "Users",
-            icon: <UserGroupIcon className='w-5 h-5' />,
+            route: "/admin/orders",
+            label: "Orders",
+            icon: <ArchiveBoxIcon className='w-5 h-5' />,
         },
+        // {
+        //     id: "1",
+        //     route: "/admin/users",
+        //     label: "Users",
+        //     icon: <UserGroupIcon className='w-5 h-5' />,
+        // },
     ];
     return (
         <div className='min-h-screen flex'>

@@ -20,6 +20,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { get_products, save_product } from "./db";
 import { Product } from "~/types/product";
 import { ProductTable } from "./ProductTable";
+import { AppHeader } from "~/components/app/AppHeader";
 
 type LoaderData = {
     dialog_add_product_link: string;
@@ -248,11 +249,5 @@ function AddProduct({ open }: { open: boolean }) {
                 </div>
             </div>
         </Dialog>
-    );
-}
-
-function AppHeader({ ...props }) {
-    return (
-        <div className='w-full py-[20px] flex items-center justify-between'>{props.children}</div>
     );
 }

@@ -1,6 +1,6 @@
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { new_timer } from "~/util/misc.server";
 import type { HeadersFunction } from "@remix-run/node"; // or cloudflare/deno
 
@@ -47,29 +47,14 @@ export default function Index() {
     const { users } = useLoaderData<LoaderData>();
     return (
         <div className='max-w-md mx-auto px-[30px] '>
-            <h1 className='text-5xl mt-[60px]'>App users</h1>
-            <ul className='mt-[30px] grid grid-cols-1 gap-[30px]'>
-                {users.map((user) => {
-                    return (
-                        <li
-                            key={user.id}
-                            className=' border border-gray-400 rounded-md p-4 grid grid-cols-1 gap-[12px]'
-                        >
-                            <div>
-                                <p className='pr-4 text-gray-500'>id:</p>
-                                <p>{user.id}</p>
-                            </div>
-                            <div>
-                                <p className='pr-4 text-gray-500'>username:</p>
-                                <p> {user.username}</p>
-                            </div>
-                            <div>
-                                <p className='pr-4 text-gray-500'>role: </p>
-                                <p>{user.user_role}</p>
-                            </div>
-                        </li>
-                    );
-                })}
+            <h1 className='text-5xl mt-[60px]'>Cousine Control</h1>
+            <ul className='mt-[30px] grid gap-2'>
+                <li>
+                    <Link to='/admin/orders'>Admin Orders</Link>
+                </li>
+                <li>
+                    <Link to='/admin/products'>Admin Products</Link>
+                </li>
             </ul>
         </div>
     );

@@ -1,8 +1,8 @@
 import clsx from "clsx";
+import { HTMLProps } from "react";
 
-interface ButtonProps {
+interface ButtonProps extends HTMLProps<HTMLButtonElement> {
     variant?: "primary" | "secondary";
-    children: React.ReactNode;
 }
 
 /**
@@ -16,12 +16,12 @@ export const Button = ({ variant = "primary", children, ...props }: ButtonProps)
     const base_classes = "block leading-none text-sm p-2";
     return (
         <button
+            {...props}
             className={clsx(
                 base_classes,
                 variant_classes[variant],
                 "bg-[#3E3E3E] hover:bg-[#252424] ring-[#252424]/10 text-white rounded-lg"
             )}
-            {...props}
         >
             {children}
         </button>

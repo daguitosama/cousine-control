@@ -1,0 +1,1 @@
+alter table orders rename column name to order_name

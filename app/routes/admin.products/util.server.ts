@@ -6,8 +6,6 @@
 // so they are modeled as a state machine
 // where every state is a dialog, or idle as none
 
-import { request } from "express";
-
 // // // // // //
 export type ProductsScreenDialog = "idle" | "add-product";
 function is_dialog(s: string): s is ProductsScreenDialog {

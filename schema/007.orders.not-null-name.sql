@@ -1,0 +1,1 @@
+alter table orders alter column order_name set not null
