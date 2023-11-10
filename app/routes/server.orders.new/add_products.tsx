@@ -2,6 +2,7 @@ import { Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Button } from "~/components/ui/Button";
 import { useState } from "react";
+import clsx from "clsx";
 import { Product } from "~/types/product";
 
 export function AddProducts({

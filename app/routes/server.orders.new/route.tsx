@@ -3,7 +3,6 @@ import { AppHeader } from "~/components/app/AppHeader";
 import { Button } from "~/components/ui/Button";
 import { redirect_if_not_authorized } from "~/util/auth.server";
 import { get_products } from "../admin.products/db";
-
 import {
     DataFunctionArgs,
     HeadersFunction,
@@ -26,10 +25,9 @@ import clsx from "clsx";
 type LoaderData = {
     products: Product[];
 };
-
 export async function loader({ request }: LoaderFunctionArgs) {
     // throw new Error("Kaboom!");
-    const redirection = await redirect_if_not_authorized(request, "admin");
+    const redirection = await redirect_if_not_authorized(request, ["server", "admin"]);
     if (redirection) {
         return redirection;
     }
@@ -71,12 +69,10 @@ function map_product_to_product_line(product: Product): ProductLine {
         quantity: 1,
     };
 }
-// 📜
 export default function CreateOrderRoute() {
     const { products } = useLoaderData<typeof loader>();
     const [mode, set_mode] = useState<"normal" | "adding-products">("normal");
     const [product_lines, set_product_lines] = useState<Map<string, ProductLine>>(new Map());
-    // data structure fns
     function delete_product_line(product_line: ProductLine) {
         set_product_lines((prev_pl_map) => {
             prev_pl_map.delete(product_line.id);
@@ -91,6 +87,12 @@ export default function CreateOrderRoute() {
         });
     }
 
+    //
+    const non_selected_products = products.filter((product) => {
+        const product_in_product_line = product_lines.get(product.id);
+        return !product_in_product_line;
+    });
+    //
     function add_products_to_selection(products: Product[]) {
         var new_product_lines = products.map(map_product_to_product_line);
         set_product_lines((prev_product_lines_map) => {
@@ -100,12 +102,6 @@ export default function CreateOrderRoute() {
             return new Map(prev_product_lines_map);
         });
     }
-    // end data structure fns
-
-    const non_selected_products = products.filter((product) => {
-        const product_in_product_line = product_lines.get(product.id);
-        return !product_in_product_line;
-    });
 
     return (
         <div>
@@ -187,7 +183,7 @@ function CreateOrder({
                             htmlFor='order-name-input'
                             className='sr-only'
                         >
-                            Order Name
+                            Order Name{" "}
                         </label>
                         <input
                             type='text'
@@ -211,7 +207,7 @@ function CreateOrder({
                                 <div
                                     key={`pl:${product_line.id}`}
                                     className={clsx(
-                                        "grid  grid-cols-4 gap-2  border-b border-slate-300 py-3",
+                                        "grid  grid-cols-4 gap-2 max-w-[600px] border-b border-slate-400 py-3",
                                         idx == 0 ? "border-t " : ""
                                     )}
                                 >
@@ -228,7 +224,10 @@ function CreateOrder({
                                                 ...product_line,
                                                 quantity: parseInt(evt.currentTarget.value),
                                             };
-
+                                            // set_final_product_lines((prev_pl_map) => {
+                                            //     prev_pl_map.set(product_line.id, new_product_line);
+                                            //     return new Map(prev_pl_map);
+                                            // });
                                             update_product_line(product_line.id, new_product_line);
                                         }}
                                     />
@@ -258,6 +257,23 @@ function CreateOrder({
                         </Button>
                     </div>
                 )}
+
+                {/* <div className='mt-[50px] bg-slate-100 rounded-lg p-4 text-xs overflow-scroll border border-slate-200'>
+                    <pre>
+                        <code>
+                            {JSON.stringify(
+                                {
+                                    is_loading,
+                                    op_result,
+                                    order_name,
+                                    final_product_lines: [...final_product_lines.values()],
+                                },
+                                null,
+                                2
+                            )}
+                        </code>
+                    </pre>
+                </div> */}
             </div>
         </div>
     );

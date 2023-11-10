@@ -44,17 +44,39 @@ export const headers: HeadersFunction = ({
 };
 
 export default function Index() {
+    const links: { label: string; route: string }[] = [
+        {
+            label: "Admin Orders",
+            route: "/admin/orders",
+        },
+
+        {
+            label: "Admin Products",
+            route: "/admin/products",
+        },
+
+        {
+            label: "Server Orders",
+            route: "/server/orders",
+        },
+    ];
     const { users } = useLoaderData<LoaderData>();
     return (
         <div className='max-w-md mx-auto px-[30px] '>
             <h1 className='text-5xl mt-[60px]'>Cousine Control</h1>
             <ul className='mt-[30px] grid gap-2'>
-                <li>
-                    <Link to='/admin/orders'>Admin Orders</Link>
-                </li>
-                <li>
-                    <Link to='/admin/products'>Admin Products</Link>
-                </li>
+                {links.map((link) => {
+                    return (
+                        <li key={link.route}>
+                            <Link
+                                to={link.route}
+                                className='text-blue-600 underline'
+                            >
+                                {link.label}
+                            </Link>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );

@@ -18,8 +18,8 @@ export const ProductTable = ({ products, ...props }: ProductTableProps) => {
         '
         >
             {/* table header */}
-            <div className='bg-[#F5F5F5] rounded-t-lg font-bold grid grid-cols-4 py-2 leading-none text-sm'>
-                <div className='px-8'>Id</div>
+            <div className='bg-[#F5F5F5] rounded-t-lg font-bold grid grid-cols-3 py-2 leading-none text-sm'>
+                {/* <div className='px-8'>Id</div> */}
                 <div className='px-8'>Product</div>
                 <div className='px-8'>Price</div>
                 <div className='px-8'>Quantity</div>
@@ -47,9 +47,9 @@ function ProductListing({
     return (
         <div
             {...props}
-            className={clsx("grid grid-cols-4", className)}
+            className={clsx("grid grid-cols-3", className)}
         >
-            <div className='px-8 py-3'>{product.id}</div>
+            {/* <div className='px-8 py-3'>{product.id}</div> */}
             <div className='px-8 py-3'>{product.name}</div>
             <div className='px-8 py-3'>{product.price}</div>
             <div className='px-8 py-3'>{product.quantity}</div>
